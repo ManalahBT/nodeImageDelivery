@@ -1,0 +1,24 @@
+{
+  "name": "deliveryservice",
+  "version": "1.0.0",
+  "description": "Image delivery microservice",
+  "main": "out/www.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Adrian Cotolan (Adrian.Cotolan@outlook.com)",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "pug": "^2.0.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.2",
+    "@types/node": "^12.12.12",
+    "docker": "^1.0.0",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "typescript": "^3.7.2"
+  }
+}

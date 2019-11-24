@@ -1,0 +1,53 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+var app = express_1.default();
+var path = require('path');
+var statsRouter = require('./routes/stats');
+var errorRouter = require('./routes/error');
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, '../src/views'));
+var fs = require('fs');
+var origFilesNum = 0;
+var resFilesNum = 0;
+var cacheHits = 0;
+var cacheMisses = 0;
+var additionalInfo = "To add";
+function refreshStats() {
+    fs.readdir(path.join(__dirname, '/../Images/original'), (err, files) => {
+        origFilesNum = files.length;
+    });
+    fs.readdir(path.join(__dirname, '/../images/resized'), (err, files) => {
+        resFilesNum = files.length;
+    });
+    app.use('/stats', function (req, res, next) {
+        app.set('origFilesNum', origFilesNum.toString());
+        app.set('resFilesNum', resFilesNum.toString());
+        app.set('cacheHits', cacheHits.toString());
+        app.set('cacheMisses', cacheMisses.toString());
+        app.set('additionalInfo', additionalInfo.toString());
+        next();
+    }, statsRouter);
+}
+refreshStats();
+var ms = 1000;
+setInterval(refreshStats, ms);
+app.all('/*', function (req, res, next) {
+    res.send("You've reached a wrong place; try getting stats or images instead!");
+    next();
+});
+var createError = require('http-errors');
+app.use(function (req, res, next) {
+    next(createError(404));
+});
+app.use(function (err, req, res, next) {
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+    res.status(err.status || 500);
+    app.use('/error', errorRouter);
+});
+module.exports = app;
+//# sourceMappingURL=app.js.map
