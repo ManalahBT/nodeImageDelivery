@@ -21,6 +21,7 @@ var cacheHits = 0;
 var cacheMisses = 0;
 var additionalInfo = "To add";
 
+//TODO check adding files while app works!
 function refreshStats() {
   fs.readdir(path.join(__dirname, '/../images'), (err: NodeJS.ErrnoException, files: string[]) => {
     origFilesNum = files.length;
@@ -32,6 +33,7 @@ function refreshStats() {
   });  */
   // TODO Cache hits
   // TODO Cache Misses
+  // TODO Resized Files
   // TODO Additional Info
 
   app.set('origFilesNum', origFilesNum.toString());
