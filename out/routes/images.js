@@ -8,12 +8,6 @@ const sharp_1 = __importDefault(require("sharp"));
 const fs_1 = __importDefault(require("fs"));
 const lru_cache_1 = __importDefault(require("lru-cache"));
 var router = express_1.default.Router();
-class StatItems {
-}
-StatItems.CacheHits = 0;
-StatItems.CacheMisses = 0;
-StatItems.ResizedFiles = 0;
-StatItems.TotalCacheSize = 0;
 class CacheKey {
     constructor() {
         this.filename = "";
@@ -27,9 +21,8 @@ var cache = new lru_cache_1.default({ max: 50 * 350000,
     stale: true,
     updateAgeOnGet: true,
     maxAge: 1000 * 60 * 60 });
-StatItems.TotalCacheSize = cache.length;
-console.log("cache.length:" + cache.length);
 router.get('/:id/page', function (req, res, next) {
+    var app = req.app;
     if (fs_1.default.existsSync('images/' + req.params.id)) {
         const image = sharp_1.default('images/' + req.params.id);
         if (req.query.size != undefined) {
@@ -37,14 +30,14 @@ router.get('/:id/page', function (req, res, next) {
             if (ret !== null && ret !== undefined && ret.length !== 0) {
                 var reqWidth = parseInt(ret[1], 10);
                 var reqHeight = parseInt(ret[2], 10);
-                cacheAndSend(image, req, res, reqWidth, reqHeight);
+                cacheAndSend(app, image, req, res, reqWidth, reqHeight);
             }
             else {
-                cacheAndSend(image, req, res, 0, 0);
+                cacheAndSend(app, image, req, res, 0, 0);
             }
         }
         else {
-            cacheAndSend(image, req, res, 0, 0);
+            cacheAndSend(app, image, req, res, 0, 0);
         }
     }
     else {
@@ -54,11 +47,10 @@ router.get('/:id/page', function (req, res, next) {
 router.get('/:id', function (req, res, next) {
 });
 module.exports = router;
-function cacheAndSend(image, req, res, reqWidth = 0, reqHeight = 0) {
+function cacheAndSend(app, image, req, res, reqWidth = 0, reqHeight = 0) {
     image
         .metadata()
         .then(function (metadata) {
-        var fileName = req.params.id;
         const searchFile = {
             filename: req.params.id,
             width: (reqWidth === 0 ? (metadata.width || 0) : reqWidth),
@@ -67,7 +59,7 @@ function cacheAndSend(image, req, res, reqWidth = 0, reqHeight = 0) {
         var cachedFile = cache.get(searchFile.filename + "!" + searchFile.width + "!" + searchFile.height);
         console.log(searchFile.filename + "x" + searchFile.width + "x" + searchFile.height + "x" + cache.itemCount);
         if (cachedFile === undefined) {
-            StatItems.CacheMisses++;
+            app.set('cacheMisses', app.get('cacheMisses') + 1);
             console.log("default cache miss");
             cache.forEach(function (valueT, keyT, cacheT) {
                 console.log(keyT);
@@ -84,7 +76,8 @@ function cacheAndSend(image, req, res, reqWidth = 0, reqHeight = 0) {
                 readStream.pipe(transform).toBuffer().then(function (data) {
                     const buf = data.toString('base64');
                     cache.set(searchFile.filename + "!" + searchFile.width + "!" + searchFile.height, buf);
-                    StatItems.TotalCacheSize = cache.length;
+                    app.set('totalNumberOfCachedFiles', cache.itemCount);
+                    app.set('totalLengthOfCachedFiles', cache.length);
                     console.log('default too big file: ' + reqWidth + "x" + reqHeight);
                     res.render('image', { format: metadata.format, buffer: buf });
                 });
@@ -96,15 +89,16 @@ function cacheAndSend(image, req, res, reqWidth = 0, reqHeight = 0) {
                 readStream.pipe(transform).toBuffer().then(function (data) {
                     const buf = data.toString('base64');
                     cache.set(searchFile.filename + "!" + searchFile.width + "!" + searchFile.height, buf);
-                    StatItems.TotalCacheSize = cache.length;
-                    StatItems.ResizedFiles++;
+                    app.set('resFilesNum', app.get('resFilesNum') + 1);
+                    app.set('totalNumberOfCachedFiles', cache.itemCount);
+                    app.set('totalLengthOfCachedFiles', cache.length);
                     console.log('default resize');
                     res.render('image', { format: metadata.format, buffer: buf });
                 });
             }
         }
         else {
-            StatItems.CacheHits++;
+            app.set('cacheHits', app.get('cacheHits') + 1);
             console.log('default cache hit');
             res.render('image', { format: metadata.format, buffer: cachedFile });
         }

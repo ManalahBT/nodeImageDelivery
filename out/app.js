@@ -12,20 +12,16 @@ var imageRouter = require('./routes/images');
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, '../src/views'));
 var fs = require('fs');
-var origFilesNum = 0;
-var resFilesNum = 0;
-var cacheHits = 0;
-var cacheMisses = 0;
-var additionalInfo = "To add";
+app.set('origFilesNum', 0);
+app.set('resFilesNum', 0);
+app.set('cacheHits', 0);
+app.set('cacheMisses', 0);
+app.set('totalNumberOfCachedFiles', 0);
+app.set('totalLengthOfCachedFiles', 0);
 function refreshStats() {
     fs.readdir(path.join(__dirname, '/../images'), (err, files) => {
-        origFilesNum = files.length;
+        app.set('origFilesNum', files.length);
     });
-    app.set('origFilesNum', origFilesNum.toString());
-    app.set('resFilesNum', resFilesNum.toString());
-    app.set('cacheHits', cacheHits.toString());
-    app.set('cacheMisses', cacheMisses.toString());
-    app.set('additionalInfo', additionalInfo.toString());
 }
 refreshStats();
 app.use('/stats', function (req, res, next) {

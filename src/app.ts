@@ -15,32 +15,24 @@ app.set('views', path.join(__dirname, '../src/views'));
 // File system info
 var fs = require('fs');
 
-var origFilesNum = 0;
-var resFilesNum = 0;
-var cacheHits = 0;
-var cacheMisses = 0;
-var additionalInfo = "To add";
+//TODO add actual stats
+app.set('origFilesNum', 0); //TODO remove done
+app.set('resFilesNum', 0);
+app.set('cacheHits', 0);
+app.set('cacheMisses', 0);
+app.set('totalNumberOfCachedFiles', 0);
+app.set('totalLengthOfCachedFiles', 0);
 
 //TODO check adding files while app works!
 function refreshStats() {
   fs.readdir(path.join(__dirname, '/../images'), (err: NodeJS.ErrnoException, files: string[]) => {
-    origFilesNum = files.length;
+    app.set('origFilesNum', files.length);
   });
 
-  /* depends on actual resize ops/cache
-  fs.readdir(path.join(__dirname, '/../images/resized'), (err: NodeJS.ErrnoException, files: string[]) => {
-    resFilesNum = files.length;
-  });  */
   // TODO Cache hits
   // TODO Cache Misses
   // TODO Resized Files
   // TODO Additional Info
-
-  app.set('origFilesNum', origFilesNum.toString());
-  app.set('resFilesNum', resFilesNum.toString());
-  app.set('cacheHits', cacheHits.toString());
-  app.set('cacheMisses', cacheMisses.toString());
-  app.set('additionalInfo', additionalInfo.toString());
 }
 refreshStats(); // Initial call;
 
