@@ -12,7 +12,7 @@ router.get('/page', function(req, res, next) {
   });
 });
 
-/* GET stats raw info. */
+// GET stats raw info.
 router.get('/', function(req, res, next) {
   res.send("Original files: " + req.app.get('origFilesNum') + " Resized files: " + req.app.get('resFilesNum') + 
   " cacheHits: " + req.app.get('cacheHits') + " cacheMisses: " + req.app.get('cacheMisses') + " additionalInfo: " + req.app.get('additionalInfo'));

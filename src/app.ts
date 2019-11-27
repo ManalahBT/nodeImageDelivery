@@ -22,13 +22,14 @@ var cacheMisses = 0;
 var additionalInfo = "To add";
 
 function refreshStats() {
-  fs.readdir(path.join(__dirname, '/../images/original'), (err: NodeJS.ErrnoException, files: string[]) => {
+  fs.readdir(path.join(__dirname, '/../images'), (err: NodeJS.ErrnoException, files: string[]) => {
     origFilesNum = files.length;
   });
 
+  /* depends on actual resize ops/cache
   fs.readdir(path.join(__dirname, '/../images/resized'), (err: NodeJS.ErrnoException, files: string[]) => {
     resFilesNum = files.length;
-  });  
+  });  */
   // TODO Cache hits
   // TODO Cache Misses
   // TODO Additional Info

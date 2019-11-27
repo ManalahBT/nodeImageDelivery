@@ -3,4 +3,7 @@ html
    head
       title Adrian's image delivery service
    body
-        img.image#Visual(src=imagePath alt="Invalid image")
+        if(imagePath)
+            img.image#Visual(src=imagePath alt="Invalid image")
+        else
+            img(src='data:image/' + format + ';base64,' + buffer)

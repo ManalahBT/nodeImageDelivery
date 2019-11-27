@@ -18,11 +18,8 @@ var cacheHits = 0;
 var cacheMisses = 0;
 var additionalInfo = "To add";
 function refreshStats() {
-    fs.readdir(path.join(__dirname, '/../images/original'), (err, files) => {
+    fs.readdir(path.join(__dirname, '/../images'), (err, files) => {
         origFilesNum = files.length;
-    });
-    fs.readdir(path.join(__dirname, '/../images/resized'), (err, files) => {
-        resFilesNum = files.length;
     });
     app.set('origFilesNum', origFilesNum.toString());
     app.set('resFilesNum', resFilesNum.toString());
