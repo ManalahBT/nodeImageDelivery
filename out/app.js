@@ -8,6 +8,7 @@ var app = express_1.default();
 var path = require('path');
 var statsRouter = require('./routes/stats');
 var errorRouter = require('./routes/error');
+var imageRouter = require('./routes/images');
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, '../src/views'));
 var fs = require('fs');
@@ -17,24 +18,26 @@ var cacheHits = 0;
 var cacheMisses = 0;
 var additionalInfo = "To add";
 function refreshStats() {
-    fs.readdir(path.join(__dirname, '/../Images/original'), (err, files) => {
+    fs.readdir(path.join(__dirname, '/../images/original'), (err, files) => {
         origFilesNum = files.length;
     });
     fs.readdir(path.join(__dirname, '/../images/resized'), (err, files) => {
         resFilesNum = files.length;
     });
-    app.use('/stats', function (req, res, next) {
-        app.set('origFilesNum', origFilesNum.toString());
-        app.set('resFilesNum', resFilesNum.toString());
-        app.set('cacheHits', cacheHits.toString());
-        app.set('cacheMisses', cacheMisses.toString());
-        app.set('additionalInfo', additionalInfo.toString());
-        next();
-    }, statsRouter);
+    app.set('origFilesNum', origFilesNum.toString());
+    app.set('resFilesNum', resFilesNum.toString());
+    app.set('cacheHits', cacheHits.toString());
+    app.set('cacheMisses', cacheMisses.toString());
+    app.set('additionalInfo', additionalInfo.toString());
 }
 refreshStats();
+app.use('/stats', function (req, res, next) {
+    next();
+}, statsRouter);
 var ms = 1000;
 setInterval(refreshStats, ms);
+app.use(express_1.default.static(path.join(__dirname, '../images')));
+app.use('/image', imageRouter);
 app.all('/*', function (req, res, next) {
     res.send("You've reached a wrong place; try getting stats or images instead!");
     next();
