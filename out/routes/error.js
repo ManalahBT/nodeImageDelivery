@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 var router = express_1.default.Router();
-router.all('/', function (req, res) {
+router.all('/*', function (req, res) {
     res.send("You've reached a wrong place; try getting stats or images instead!");
 });
 module.exports = router;
