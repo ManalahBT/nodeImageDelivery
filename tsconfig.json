@@ -6,9 +6,11 @@
       "outDir": "out",
       "removeComments": true,
       "strict": true,
-      "sourceMap": true
+      "sourceMap": true,
+      "types": ["cypress"]
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "cypress/integration/**/*"
     ]
   }

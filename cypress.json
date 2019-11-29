@@ -1,1 +1,5 @@
-{}
+{
+    "baseURL": "http://localhost:3000",
+    "integrationFolder": "out/cypress/integration",
+    "testFiles": "**/*.js"
+}
