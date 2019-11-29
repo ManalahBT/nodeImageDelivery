@@ -6,7 +6,7 @@ import { Application } from "express-serve-static-core";
 
 var router = express.Router();
 
-// Caching
+// Caching. Required throughout the lifecycle of a service instance
 var cache = new LRU({ max: 50 * 350000 // very rought estimate of 50 images@4k resolution based on img_6.jpg. Will vary widely based upon content and format
   , length: function(value: string, key: string){return value.length;}  // value=buffer; key=filename+with+Height
   , dispose: function (key: string, value: string) { console.log("Deleted " + key); }//key.filename + " value: " + value.length) } //TODO delete after confirm
@@ -29,7 +29,8 @@ function processFileAndURL(req: any, res: any, mode: string) {
   
   if(mode!= "page" && mode != "raw")
   {
-    res.send('File ' + req.params.id + ' not found');
+    res.status(500);
+    res.send('File ' + req.params.id + ' not found. Invalid mode');
     return;
   }
   
@@ -56,8 +57,9 @@ function processFileAndURL(req: any, res: any, mode: string) {
     {
       cacheAndForward(app, image, req, res, filePath, mode, 0, 0);
     }
-  }
-  else {
+  } 
+  else { //couldn't find file in filesystem
+    res.status(404);
     res.send('File ' + req.params.id + ' not found');
   }
 }
@@ -66,7 +68,8 @@ function cacheAndForward(app: Application, image: sharp.Sharp, req: any, res: an
   
   if(mode!= "page" && mode != "raw")
   {
-    res.send('File ' + req.params.id + ' not found');
+    res.status(500);
+    res.send('File ' + req.params.id + ' not found. Invalid mode');
     return;
   }
 

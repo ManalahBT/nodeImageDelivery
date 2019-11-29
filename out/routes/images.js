@@ -23,7 +23,8 @@ router.get('/:id/page', function (req, res, next) {
 module.exports = router;
 function processFileAndURL(req, res, mode) {
     if (mode != "page" && mode != "raw") {
-        res.send('File ' + req.params.id + ' not found');
+        res.status(500);
+        res.send('File ' + req.params.id + ' not found. Invalid mode');
         return;
     }
     var app = req.app;
@@ -46,12 +47,14 @@ function processFileAndURL(req, res, mode) {
         }
     }
     else {
+        res.status(404);
         res.send('File ' + req.params.id + ' not found');
     }
 }
 function cacheAndForward(app, image, req, res, filePath, mode, reqWidth = 0, reqHeight = 0) {
     if (mode != "page" && mode != "raw") {
-        res.send('File ' + req.params.id + ' not found');
+        res.status(500);
+        res.send('File ' + req.params.id + ' not found. Invalid mode');
         return;
     }
     image
