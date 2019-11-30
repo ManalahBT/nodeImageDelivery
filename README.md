@@ -133,7 +133,7 @@ The following choices were made, in order to improve the service's performance:
 - files are being buffer-read via readstream, instead of reading whole files, files are read in buffers
 6) Next steps
 
-Potential next steps in this service’s development could be
+Potential next steps in this service’s development could be (in decreasing order of priority):
 
 1. implement sync mechanism (redit key/value store) for syncing values across worker threads and lru-cache
 2. replace actual node with CDN and/or nginx for serving static assets; more information: https://softwareontheroad.com/nodejs-scalability-issues/
