@@ -11,7 +11,7 @@
     "pm2Logs": "pm2 logs",
     "pm2Monit": "pm2 monit",
     "build": "tsc",
-    "startJustNode": "node ."
+    "startDefault": "node ."
   },
   "author": "Adrian Cotolan (Adrian.Cotolan@outlook.com)",
   "license": "MIT",

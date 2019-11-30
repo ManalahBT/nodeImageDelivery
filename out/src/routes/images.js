@@ -7,14 +7,14 @@ const express_1 = __importDefault(require("express"));
 const sharp_1 = __importDefault(require("sharp"));
 const fs_1 = __importDefault(require("fs"));
 const lru_cache_1 = __importDefault(require("lru-cache"));
-const cluster_1 = __importDefault(require("cluster"));
 var router = express_1.default.Router();
-var cache = new lru_cache_1.default({ max: 50 * 350000,
+var cache = new lru_cache_1.default({
+    max: 50 * 350000,
     length: function (value, key) { return value.length; },
-    dispose: function (key, value) { console.log("Deleted " + key); },
     stale: true,
     updateAgeOnGet: true,
-    maxAge: 1000 * 60 * 60 });
+    maxAge: 1000 * 60 * 60
+});
 router.get('/:id', function (req, res) {
     processFileAndURL(req, res, "raw");
 });
@@ -23,7 +23,6 @@ router.get('/:id/page', function (req, res) {
 });
 module.exports = router;
 function processFileAndURL(req, res, mode) {
-    console.log("slave4u: " + cluster_1.default.worker.id);
     if (mode != "page" && mode != "raw") {
         res.status(500);
         res.send('Invalid mode');
@@ -33,16 +32,12 @@ function processFileAndURL(req, res, mode) {
     const filePath = 'images/' + req.params.id;
     if (fs_1.default.existsSync(filePath)) {
         const image = sharp_1.default(filePath);
-        if (req.query.size != undefined) {
-            const ret = /^(\d+)x(\d+)$/i.exec(req.query.size);
-            if (ret !== null && ret !== undefined && ret.length !== 0) {
-                var reqWidth = parseInt(ret[1], 10);
-                var reqHeight = parseInt(ret[2], 10);
-                cacheAndForward(app, image, req, res, filePath, mode, reqWidth, reqHeight);
-            }
-            else {
-                cacheAndForward(app, image, req, res, filePath, mode, 0, 0);
-            }
+        const ret = /^(\d+)x(\d+)$/i.exec(req.query.size);
+        if (req.query.size != undefined &&
+            ret !== null && ret !== undefined && ret.length !== 0) {
+            var reqWidth = parseInt(ret[1], 10);
+            var reqHeight = parseInt(ret[2], 10);
+            cacheAndForward(app, image, req, res, filePath, mode, reqWidth, reqHeight);
         }
         else {
             cacheAndForward(app, image, req, res, filePath, mode, 0, 0);
@@ -70,7 +65,6 @@ function cacheAndForward(app, image, req, res, filePath, mode, reqWidth = 0, req
         var cachedFile = cache.get(searchFile.filename + ":" + searchFile.width + ":" + searchFile.height);
         if (cachedFile === undefined) {
             app.set('cacheMisses', app.get('cacheMisses') + 1);
-            console.log("default cache miss");
             var transform = sharp_1.default();
             if (!metadata.format) {
                 transform = transform.toFormat('jpeg');
@@ -84,7 +78,6 @@ function cacheAndForward(app, image, req, res, filePath, mode, reqWidth = 0, req
                     cache.set(searchFile.filename + ":" + searchFile.width + ":" + searchFile.height, buf);
                     app.set('totalNumberOfCachedFiles', cache.itemCount);
                     app.set('totalLengthOfCachedFiles', cache.length);
-                    console.log('default too big file: ' + reqWidth + "x" + reqHeight);
                     outputFile(mode, res, data, metadata);
                 });
             }
@@ -98,14 +91,12 @@ function cacheAndForward(app, image, req, res, filePath, mode, reqWidth = 0, req
                     app.set('resFilesNum', app.get('resFilesNum') + 1);
                     app.set('totalNumberOfCachedFiles', cache.itemCount);
                     app.set('totalLengthOfCachedFiles', cache.length);
-                    console.log('default resize');
                     outputFile(mode, res, data, metadata);
                 });
             }
         }
         else {
             app.set('cacheHits', app.get('cacheHits') + 1);
-            console.log('default cache hit');
             outputFile(mode, res, cachedFile, metadata);
         }
     });
@@ -118,7 +109,6 @@ function outputFile(mode, res, buf, metadata) {
     }
     if (mode == "raw") {
         if (typeof buf === "string") {
-            console.log("from string");
             res.writeHead(200);
             res.end(Buffer.from(buf, 'base64'));
         }
@@ -127,7 +117,6 @@ function outputFile(mode, res, buf, metadata) {
                 'Content-Type': 'image/' + metadata.format,
                 'Content-Length': buf.length
             });
-            console.log("from buffer");
             res.end(buf);
         }
     }

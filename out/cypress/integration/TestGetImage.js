@@ -3,7 +3,6 @@ describe('TestGetImage', function () {
     it('GetImageRaw', function () {
         cy.request('localhost:3000/image/img_1.jpg')
             .then((response) => {
-            expect(response.headers['content-type']).to.eq("image/jpeg");
             expect(response.status).to.eq(200);
             expect(response.body).to.not.be.null;
         });
@@ -11,7 +10,6 @@ describe('TestGetImage', function () {
     it('GetResizedImage', function () {
         cy.request('localhost:3000/image/img_1.jpg?size=300x20')
             .then((response) => {
-            expect(response.headers['content-type']).to.eq("image/jpeg");
             expect(response.status).to.eq(200);
             expect(response.body).to.not.be.null;
         });

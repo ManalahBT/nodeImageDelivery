@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const http_1 = __importDefault(require("http"));
 var app = require('./app');
-var http = require('http');
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
-var server = http.createServer(app);
+var server = http_1.default.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
@@ -42,6 +46,6 @@ function onListening() {
     var addr = server.address();
     var bind = typeof addr === 'string'
         ? 'pipe ' + addr
-        : 'port ' + addr.port;
+        : 'port ' + (addr ? addr.port : 3000);
 }
 //# sourceMappingURL=www.js.map

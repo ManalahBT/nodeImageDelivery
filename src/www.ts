@@ -3,8 +3,8 @@
 /**
  * Module dependencies.
  */
+import http from "http";
 var app = require('./app');
-var http = require('http');
 
 /**
  * Get port from environment and store in Express.
@@ -77,6 +77,5 @@ function onListening() {
   var addr = server.address();
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  //TODO: infer debug from console if really want to print this. debug('Listening on ' + bind);
+    : 'port ' + (addr ? addr.port : 3000);
 }
