@@ -1,5 +1,5 @@
 1) Introduction
-"Adrian's image delivery service" is a serves as microservice capable of sending images in both original and resized resolutions (up to, and including 4k).
+The image delivery service is a microservice capable of sending images in both original and resized resolutions (up to, and including 4k).
 It is based upon node.js and can be used both from browser and from command line.
 
 2) Usage
