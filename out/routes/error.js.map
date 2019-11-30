@@ -1,1 +1,0 @@
-{"version":3,"file":"error.js","sourceRoot":"","sources":["../../src/routes/error.ts"],"names":[],"mappings":";;;;;AAAA,sDAA8B;AAC9B,IAAI,MAAM,GAAG,iBAAO,CAAC,MAAM,EAAE,CAAC;AAG9B,MAAM,CAAC,GAAG,CAAC,IAAI,EAAE,UAAS,GAAG,EAAE,GAAG;IAC9B,GAAG,CAAC,IAAI,CAAC,oEAAoE,CAAC,CAAC;AAClF,CAAC,CAAC,CAAC;AAEJ,MAAM,CAAC,OAAO,GAAG,MAAM,CAAC"}

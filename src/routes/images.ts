@@ -15,22 +15,21 @@ var cache = new LRU({ max: 50 * 350000 // very rought estimate of 50 images@4k r
   , maxAge: 1000 * 60 * 60 }) //  In seconds = 3600000; In minutes = 60000; In hours = 1000; In days >41.5
 
 /* GET stats raw info. */
-router.get('/:id', function(req, res, next) {
+router.get('/:id', function(req, res) {
     processFileAndURL(req, res, "raw");
 });
 
 // GET image page. 
-router.get('/:id/page', function(req, res, next) {
+router.get('/:id/page', function(req, res) {
     processFileAndURL(req, res, "page");
 });
 
 module.exports = router;
 function processFileAndURL(req: any, res: any, mode: string) {
-  
   if(mode!= "page" && mode != "raw")
   {
     res.status(500);
-    res.send('File ' + req.params.id + ' not found. Invalid mode');
+    res.send('Invalid mode');
     return;
   }
   
@@ -69,7 +68,7 @@ function cacheAndForward(app: Application, image: sharp.Sharp, req: any, res: an
   if(mode!= "page" && mode != "raw")
   {
     res.status(500);
-    res.send('File ' + req.params.id + ' not found. Invalid mode');
+    res.send('Invalid mode');
     return;
   }
 
@@ -82,17 +81,17 @@ function cacheAndForward(app: Application, image: sharp.Sharp, req: any, res: an
         width: ( reqWidth===0 ? ( metadata.width || 0 ) : reqWidth ),
         height: ( reqHeight===0 ? ( metadata.height || 0 ) : reqHeight )
       };
-      var cachedFile = cache.get( searchFile.filename + ":"+searchFile.width + ":" + searchFile.height);// searchFile);
-      console.log(searchFile.filename+"x"+searchFile.width + "x"+searchFile.height+"x"+cache.itemCount);
+      var cachedFile = cache.get( searchFile.filename + ":"+searchFile.width + ":" + searchFile.height);
       if (cachedFile === undefined) // file not found in cache
       {
         // File not found in cache; actually attempt to resize it then set it in cache
         app.set('cacheMisses', (<number><any>app.get('cacheMisses'))+1);
         console.log("default cache miss");
-        cache.forEach(function(valueT,keyT,cacheT){
+        /* TODO clean
+          cache.forEach(function(valueT,keyT,cacheT){
           console.log(keyT); //keyT.filename+"y"+keyT.width+"y"+keyT.height);
           console.log(valueT[0]+"!!"+valueT[1]+"!!"+valueT[2]);
-        });
+        });*/
         // setup file resize/processing for later. For sure we will need this if file not in cache
         var transform = sharp();
         if (!metadata.format) {
@@ -112,17 +111,17 @@ function cacheAndForward(app: Application, image: sharp.Sharp, req: any, res: an
         3) No specific resolution requested. Height and width will default to 0
         4) Invalid resolution query passed to us. Height and width will default to 0
         */
+       //TODO really need to do buffer from then parse again to base64?!?
         if ((metadata.width == reqWidth && metadata.height == reqHeight) ||
           (reqWidth > 3840 || reqHeight > 2160) ||
           (reqWidth == 0 || reqHeight == 0)) {
-          readStream.pipe(transform).toBuffer().then(function (data) {
+            readStream.pipe(transform).toBuffer().then(function (data) {
             const buf = data.toString('base64');
-            cache.set(searchFile.filename + ":"+searchFile.width + ":" + searchFile.height, buf);  //(searchFile, buf); // Update cache
+            cache.set(searchFile.filename + ":"+searchFile.width + ":" + searchFile.height, buf); // Update cache
             app.set('totalNumberOfCachedFiles', cache.itemCount);
             app.set('totalLengthOfCachedFiles', cache.length);
-            //TODO check undefined format usage
             console.log('default too big file: ' + reqWidth + "x"+ reqHeight);
-            outputFile(mode, res, buf, metadata);
+            outputFile(mode, res, data, metadata);
           });
         }
         else {
@@ -138,7 +137,7 @@ function cacheAndForward(app: Application, image: sharp.Sharp, req: any, res: an
             app.set('totalLengthOfCachedFiles', cache.length);
             
             console.log('default resize');
-            outputFile(mode, res, buf, metadata);
+            outputFile(mode, res, data, metadata);
           });
         }
       }
@@ -150,16 +149,39 @@ function cacheAndForward(app: Application, image: sharp.Sharp, req: any, res: an
     });
 }
 
-function outputFile(mode: string, res: any, buf: string, metadata: sharp.Metadata) {
+function outputFile(mode: string, res: any, buf: string | Buffer, metadata: sharp.Metadata) {
+  if(mode!= "page" && mode != "raw")
+  {
+    res.status(500);
+    res.send('Invalid mode');
+    return;
+  }
+
   if (mode == "raw") 
   { 
-    res.writeHead(200, {
-      'Content-Type': 'image/' + metadata.format,
-      'Content-Length': buf.length
-    });
-    res.end(Buffer.from(buf, 'base64'));
+    //TODO check raw via 1) Tests 2) Live if really need to write head
+    if( typeof buf === "string") //cached 
+    {
+      console.log("from string");
+      res.writeHead(200);
+      res.end(Buffer.from(buf, 'base64'));
+    }
+    else  // from buffer; non-cached
+    {
+      res.writeHead(200, {
+        'Content-Type': 'image/' + metadata.format,
+        'Content-Length': buf.length
+      });
+      console.log("from buffer");
+      res.end(buf);
+    }
   }
-  else if (mode == "page") 
-    res.render('image', { format: metadata.format, buffer: buf });
+  else if (mode == "page")
+  {
+    if( typeof buf === "string") // string. cache
+      res.render('image', { format: metadata.format, buffer: buf });
+    else  // buffer. non-cache
+      res.render('image', { format: metadata.format, buffer: buf.toString('base64') });
+  } 
 }
 

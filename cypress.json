@@ -1,5 +1,10 @@
 {
     "baseURL": "http://localhost:3000",
     "integrationFolder": "out/cypress/integration",
-    "testFiles": "**/*.js"
+    "testFiles": "**/*.js",
+    "execTimeout": 10000,
+    "taskTimeout": 10000,
+    "pageLoadTimeout": 10000,
+    "requestTimeout": 10000,
+    "responseTimeout": 15000
 }
