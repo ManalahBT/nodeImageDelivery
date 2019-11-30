@@ -3,6 +3,7 @@ import sharp from "sharp";
 import fs from "fs";
 import LRU from "lru-cache"
 import { Application } from "express-serve-static-core";
+import cluster from 'cluster';
 
 var router = express.Router();
 
@@ -26,6 +27,7 @@ router.get('/:id/page', function(req, res) {
 
 module.exports = router;
 function processFileAndURL(req: any, res: any, mode: string) {
+  console.log("slave4u: " + cluster.worker.id);
   if(mode!= "page" && mode != "raw")
   {
     res.status(500);

@@ -4,23 +4,29 @@
   "description": "Image delivery microservice",
   "main": "out/src/www.js",
   "scripts": {
+    "test": "cypress open",
+    "pm2Start": "pm2 start . -i 0",
+    "pm2Stop": "pm2 stop .",
+    "pm2List": "pm2 list",
+    "pm2Logs": "pm2 logs",
+    "pm2Monit": "pm2 monit",
     "build": "tsc",
-    "start": "node .",
-    "test": "cypress open"
+    "startJustNode": "node ."
   },
   "author": "Adrian Cotolan (Adrian.Cotolan@outlook.com)",
   "license": "MIT",
   "dependencies": {
+    "@types/express": "^4.17.2",
+    "@types/node": "^12.12.12",
     "@types/lru-cache": "^5.1.0",
     "@types/sharp": "^0.23.0",
     "express": "^4.17.1",
     "lru-cache": "^5.1.1",
+    "pm2": "^4.2.0",
     "pug": "^2.0.4",
     "sharp": "^0.23.3"
   },
   "devDependencies": {
-    "@types/express": "^4.17.2",
-    "@types/node": "^12.12.12",
     "cypress": "^3.7.0",
     "docker": "^1.0.0",
     "ts-node-dev": "^1.0.0-pre.44",

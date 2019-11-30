@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const sharp_1 = __importDefault(require("sharp"));
 const fs_1 = __importDefault(require("fs"));
 const lru_cache_1 = __importDefault(require("lru-cache"));
+const cluster_1 = __importDefault(require("cluster"));
 var router = express_1.default.Router();
 var cache = new lru_cache_1.default({ max: 50 * 350000,
     length: function (value, key) { return value.length; },
@@ -22,6 +23,7 @@ router.get('/:id/page', function (req, res) {
 });
 module.exports = router;
 function processFileAndURL(req, res, mode) {
+    console.log("slave4u: " + cluster_1.default.worker.id);
     if (mode != "page" && mode != "raw") {
         res.status(500);
         res.send('Invalid mode');
@@ -130,7 +132,6 @@ function outputFile(mode, res, buf, metadata) {
         }
     }
     else if (mode == "page") {
-        console.log("yolo " + buf);
         if (typeof buf === "string")
             res.render('image', { format: metadata.format, buffer: buf });
         else
